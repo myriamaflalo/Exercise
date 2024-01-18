@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import MyTable from './Table/MyTable';
 
-function App() {
+
+const App = () => {
+ 
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users') // Replace with your API URL
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(res => {
+        setEmployees(res);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error loading data: {error.message}</p>}
+      {employees.length>0 && !loading && !error && <MyTable employees={employees} />}
     </div>
   );
+
 }
 
 export default App;
+
+
